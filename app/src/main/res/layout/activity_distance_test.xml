@@ -14,42 +14,42 @@
         android:layout_height="wrap_content"
         android:text="Longtitude: "
         android:id="@+id/text1"
-        android:layout_marginTop="8dp"
         android:layout_alignParentTop="true"
         android:layout_alignTop="@+id/longitude_field"
         android:layout_alignBottom="@+id/longitude_field"
-        android:textSize="20sp" />
-    <EditText
+        android:textSize="25sp" />
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
         android:id="@+id/longitude_field"
+        android:text="0.000000"
+        android:ems="10"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        android:layout_marginBottom="40dp"
+        android:layout_alignEnd="@+id/latitude_field"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/text1"
-        android:text="0.000000" />
+        android:layout_toEndOf="@+id/text1" />
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Latitude: "
-        android:layout_marginTop="8dp"
         android:id="@+id/text2"
         android:layout_alignTop="@+id/latitude_field"
         android:layout_alignBottom="@+id/latitude_field"
-        android:layout_alignParentStart="true"
-        android:textSize="20sp" />
-    <EditText
+        android:textSize="25sp" />
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="number"
         android:ems="10"
         android:id="@+id/latitude_field"
         android:text="0.000000"
         android:layout_toEndOf="@+id/text2"
         android:layout_below="@+id/longitude_field"
-        android:layout_alignStart="@+id/longitude_field" />
+        android:textAlignment="center"
+        android:textSize="30sp" />
 
 
     <Button
