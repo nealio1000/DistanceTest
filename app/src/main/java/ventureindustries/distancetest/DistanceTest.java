@@ -6,18 +6,12 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 
 public class DistanceTest extends AppCompatActivity {
@@ -27,11 +21,14 @@ public class DistanceTest extends AppCompatActivity {
     private Button startButton;
     private Button stopButton;
     private TextView resultView;
-    private double longtitude;
+    private TextView readyText;
+    private double longitude;
     private double latitude;
     private LocationManager locationManager;
-    private Location mLastLocation;
+    private Location startLocation;
+    private Location stopLocation;
     private LocationListener locationListener;
+    private String locationProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +41,14 @@ public class DistanceTest extends AppCompatActivity {
         startButton = (Button) findViewById(R.id.start_button);
         stopButton = (Button) findViewById(R.id.stop_button);
         resultView = (TextView) findViewById(R.id.result_field);
+        readyText = (TextView) findViewById(R.id.readyText);
+
+        stopButton.setEnabled(false);
 
         // Attach Location Manager
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locationProvider = LocationManager.NETWORK_PROVIDER;
+
 
         // Define a listener that responds to location updates
         locationListener = new LocationListener() {
@@ -54,6 +56,7 @@ public class DistanceTest extends AppCompatActivity {
             public void onLocationChanged(Location location) {
                 latitudeView.setText(String.valueOf(location.getLatitude()));
                 longitudeView.setText(String.valueOf(location.getLongitude()));
+
             }
 
             @Override
@@ -72,28 +75,41 @@ public class DistanceTest extends AppCompatActivity {
             }
         };
 
+        // Start Retrieving Location Updates
+        if (ActivityCompat.checkSelfPermission(
+                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
+
         // Create Callbacks
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Start Recording
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(
+                        getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
                     return;
                 }
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-
+                startLocation = locationManager.getLastKnownLocation(locationProvider);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
             }
         });
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Stop Recording and Display Result
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                locationManager.removeUpdates(locationListener);
+                stopLocation = locationManager.getLastKnownLocation(locationProvider);
+
+
+//                locationManager.removeUpdates(locationListener);
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
             }
         });
     }
