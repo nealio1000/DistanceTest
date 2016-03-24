@@ -8,4 +8,7 @@
     <string name="ready">Ready</string>
     <string name="notReady">Not Ready</string>
     <string name="zero">0.00</string>
+    <string name="stop">Stop Recording</string>
+    <string name="start">Start Recording</string>
+    <string name="unit_meters">Meters</string>
 </resources>
