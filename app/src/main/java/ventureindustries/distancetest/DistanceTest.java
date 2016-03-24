@@ -21,7 +21,6 @@ public class DistanceTest extends AppCompatActivity {
     private Button startButton;
     private Button stopButton;
     private Button networkButton;
-    private Button bothButton;
     private Button gpsButton;
     private TextView resultView;
     private TextView readyText;
@@ -31,7 +30,8 @@ public class DistanceTest extends AppCompatActivity {
     private LocationListener locationListener;
     private String locationProvider;
     private boolean firstLocationFlag = false;
-    private final long updateInterval = 5000;
+    private final long minTimeMs = 1000;
+    private final long minDistanceMeters = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +46,6 @@ public class DistanceTest extends AppCompatActivity {
         resultView = (TextView) findViewById(R.id.result_field);
         readyText = (TextView) findViewById(R.id.ready_text);
         networkButton = (Button) findViewById(R.id.network_button);
-        bothButton = (Button) findViewById(R.id.both_button);
         gpsButton = (Button) findViewById(R.id.gps_button);
 
         // default button scheme on startup
@@ -97,7 +96,6 @@ public class DistanceTest extends AppCompatActivity {
                 startButton.setEnabled(false);
                 stopButton.setEnabled(true);
                 networkButton.setEnabled(false);
-                bothButton.setEnabled(false);
                 gpsButton.setEnabled(false);
 
                 // set flag to tell onLocationChanged() to
@@ -132,7 +130,6 @@ public class DistanceTest extends AppCompatActivity {
                 startButton.setEnabled(false);
                 stopButton.setEnabled(false);
                 networkButton.setEnabled(true);
-                bothButton.setEnabled(true);
                 gpsButton.setEnabled(true);
                 readyText.setText(R.string.notReady);
                 readyText.setTextColor(Color.rgb(255, 0, 0));
@@ -143,7 +140,6 @@ public class DistanceTest extends AppCompatActivity {
             public void onClick(View v) {
                 // setup UI
                 networkButton.setEnabled(false);
-                bothButton.setEnabled(true);
                 gpsButton.setEnabled(true);
                 resultView.setText(R.string.zero);
 
@@ -158,7 +154,7 @@ public class DistanceTest extends AppCompatActivity {
                         getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeMs, minDistanceMeters, locationListener);
 
                 // Inform user that they can begin recording
                 readyText.setText(R.string.ready);
@@ -166,22 +162,12 @@ public class DistanceTest extends AppCompatActivity {
                 startButton.setEnabled(true);
             }
         });
-        bothButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                networkButton.setEnabled(true);
-                bothButton.setEnabled(false);
-                gpsButton.setEnabled(true);
-                startButton.setEnabled(true);
-                resultView.setText(R.string.zero);
-            }
-        });
+
         gpsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // setup UI
                 networkButton.setEnabled(true);
-                bothButton.setEnabled(true);
                 gpsButton.setEnabled(false);
                 resultView.setText(R.string.zero);
 
@@ -196,7 +182,7 @@ public class DistanceTest extends AppCompatActivity {
                         getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, updateInterval, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTimeMs, minDistanceMeters, locationListener);
 
                 // Inform user that they can begin recording
                 readyText.setText(R.string.ready);
