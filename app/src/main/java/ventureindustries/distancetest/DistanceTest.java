@@ -34,6 +34,7 @@ public class DistanceTest extends AppCompatActivity {
     private Location lastKnown;
     private LocationListener locationListener;
     private String locationProvider;
+    private boolean firstLocationFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,29 +52,27 @@ public class DistanceTest extends AppCompatActivity {
         bothButton = (Button) findViewById(R.id.both_button);
         gpsButton = (Button) findViewById(R.id.gps_button);
 
-
         // default button scheme on startup
         startButton.setEnabled(false);
         stopButton.setEnabled(false);
 
         // Attach Location Manager
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        locationProvider = LocationManager.NETWORK_PROVIDER;
-
-
 
         // Define a listener that responds to location updates
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
 
-                latitudeView.setText(String.valueOf(location.getLatitude()));
-                longitudeView.setText(String.valueOf(location.getLongitude()));
+                if(isBetterLocation(location, lastKnown)) {
+                    latitudeView.setText(String.valueOf(location.getLatitude()));
+                    longitudeView.setText(String.valueOf(location.getLongitude()));
 
-                if(location.getAccuracy() < 25) {
-                    readyText.setText("Ready");
-                    startButton.setEnabled(true);
-                    readyText.setTextColor(Color.rgb(0, 255, 0));
+                    if(firstLocationFlag) {
+                        startLocation = location;
+                        firstLocationFlag = false;
+                    }
+                    lastKnown = location;
                 }
             }
 
@@ -87,55 +86,84 @@ public class DistanceTest extends AppCompatActivity {
             public void onProviderDisabled(String provider) {}
         };
 
-        // Start Retrieving Location Updates
-        if (ActivityCompat.checkSelfPermission(
-                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-
 
         // Create Callbacks
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
+            /**
+             * Start Recording
+             */
             public void onClick(View v) {
-                // Start Recording
-                if (ActivityCompat.checkSelfPermission(
-                        getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
-                    return;
-                }
-                startLocation = locationManager.getLastKnownLocation(locationProvider);
                 startButton.setEnabled(false);
                 stopButton.setEnabled(true);
+                networkButton.setEnabled(false);
+                bothButton.setEnabled(false);
+                gpsButton.setEnabled(false);
+
+                // set flag to tell onLocationChanged() to
+                // save its last location as the startLocation
+                firstLocationFlag = true;
             }
         });
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
+            /**
+             * Stop recording and reset activity
+             */
             public void onClick(View v) {
                 // Stop Recording and Display Result
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                stopLocation = locationManager.getLastKnownLocation(locationProvider);
 
+                // Stop periodic location updates
+                locationManager.removeUpdates(locationListener);
 
-//                locationManager.removeUpdates(locationListener);
-                startButton.setEnabled(true);
-                stopButton.setEnabled(false);
+                // Calculate distance between startLocation and lastKnown and store in results[]
                 float[] results = new float[3];
+                Location.distanceBetween(startLocation.getLatitude(), startLocation.getLongitude(),
+                        lastKnown.getLatitude(), lastKnown.getLongitude(), results);
 
-               Location.distanceBetween(startLocation.getLatitude(), startLocation.getLongitude(),
-                       stopLocation.getLatitude(), stopLocation.getLongitude(), results);
+                // display results
+                resultView.setText((String.valueOf(results[0])));
 
-                resultView.setText((String.valueOf(results[0])) + " meters");
+                // reset activity
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
+                networkButton.setEnabled(true);
+                bothButton.setEnabled(true);
+                gpsButton.setEnabled(true);
+                readyText.setText("Not Ready");
+                readyText.setTextColor(Color.rgb(255, 0, 0));
             }
         });
         networkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // setup UI
                 networkButton.setEnabled(false);
                 bothButton.setEnabled(true);
                 gpsButton.setEnabled(true);
+                resultView.setText("0.00");
+
+                // Set up location management for NETWORK_PROVIDER
+                locationProvider = locationManager.NETWORK_PROVIDER;
+                lastKnown = locationManager.getLastKnownLocation(locationProvider);
+                latitudeView.setText(String.valueOf(lastKnown.getLatitude()));
+                longitudeView.setText(String.valueOf(lastKnown.getLongitude()));
+
+                // Start Retrieving Location Updates from NETWORK_PROVIDER
+                if (ActivityCompat.checkSelfPermission(
+                        getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
+                    return;
+                }
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
+                // Inform user that they can begin recording
+                readyText.setText("Ready");
+                readyText.setTextColor(Color.rgb(0, 255, 0));
+                startButton.setEnabled(true);
             }
         });
         bothButton.setOnClickListener(new View.OnClickListener() {
@@ -144,14 +172,39 @@ public class DistanceTest extends AppCompatActivity {
                 networkButton.setEnabled(true);
                 bothButton.setEnabled(false);
                 gpsButton.setEnabled(true);
+                startButton.setEnabled(true);
+                resultView.setText("0.00");
+
+                //TODO Handle the blended case if possible
+
             }
         });
         gpsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // setup UI
                 networkButton.setEnabled(true);
                 bothButton.setEnabled(true);
                 gpsButton.setEnabled(false);
+                resultView.setText("0.00");
+
+                // setup location management for GPS_PROVIDER
+                locationProvider = LocationManager.GPS_PROVIDER;
+                lastKnown = locationManager.getLastKnownLocation(locationProvider);
+                latitudeView.setText(String.valueOf(lastKnown.getLatitude()));
+                longitudeView.setText(String.valueOf(lastKnown.getLongitude()));
+
+                // Start Retrieving Location Updates
+                if (ActivityCompat.checkSelfPermission(
+                        getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
+                    return;
+                }
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+                // Inform user that they can begin recording
+                readyText.setText("Ready");
+                readyText.setTextColor(Color.rgb(0, 255, 0));
+                startButton.setEnabled(true);
             }
         });
 
