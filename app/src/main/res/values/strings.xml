@@ -5,4 +5,7 @@
     <string name="network">Network</string>
     <string name="both">Both</string>
     <string name="gps">GPS</string>
+    <string name="ready">Ready</string>
+    <string name="notReady">Not Ready</string>
+    <string name="zero">0.00</string>
 </resources>

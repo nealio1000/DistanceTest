@@ -134,7 +134,7 @@ public class DistanceTest extends AppCompatActivity {
                 networkButton.setEnabled(true);
                 bothButton.setEnabled(true);
                 gpsButton.setEnabled(true);
-                readyText.setText("Not Ready");
+                readyText.setText(R.string.notReady);
                 readyText.setTextColor(Color.rgb(255, 0, 0));
             }
         });
@@ -145,7 +145,7 @@ public class DistanceTest extends AppCompatActivity {
                 networkButton.setEnabled(false);
                 bothButton.setEnabled(true);
                 gpsButton.setEnabled(true);
-                resultView.setText("0.00");
+                resultView.setText(R.string.zero);
 
                 // Set up location management for NETWORK_PROVIDER
                 locationProvider = locationManager.NETWORK_PROVIDER;
@@ -161,7 +161,7 @@ public class DistanceTest extends AppCompatActivity {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 
                 // Inform user that they can begin recording
-                readyText.setText("Ready");
+                readyText.setText(R.string.ready);
                 readyText.setTextColor(Color.rgb(0, 255, 0));
                 startButton.setEnabled(true);
             }
@@ -173,7 +173,7 @@ public class DistanceTest extends AppCompatActivity {
                 bothButton.setEnabled(false);
                 gpsButton.setEnabled(true);
                 startButton.setEnabled(true);
-                resultView.setText("0.00");
+                resultView.setText(R.string.zero);
 
                 //TODO Handle the blended case if possible
 
@@ -186,7 +186,7 @@ public class DistanceTest extends AppCompatActivity {
                 networkButton.setEnabled(true);
                 bothButton.setEnabled(true);
                 gpsButton.setEnabled(false);
-                resultView.setText("0.00");
+                resultView.setText(R.string.zero);
 
                 // setup location management for GPS_PROVIDER
                 locationProvider = LocationManager.GPS_PROVIDER;
@@ -202,7 +202,7 @@ public class DistanceTest extends AppCompatActivity {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
                 // Inform user that they can begin recording
-                readyText.setText("Ready");
+                readyText.setText(R.string.ready);
                 readyText.setTextColor(Color.rgb(0, 255, 0));
                 startButton.setEnabled(true);
             }
