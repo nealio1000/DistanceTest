@@ -6,9 +6,13 @@
     <string name="both">Both</string>
     <string name="gps">GPS</string>
     <string name="ready">Ready</string>
-    <string name="notReady">Not Ready</string>
+    <string name="notReady">Select Provider</string>
     <string name="zero">0.00</string>
     <string name="stop">Stop Recording</string>
     <string name="start">Start Recording</string>
     <string name="unit_meters">Meters</string>
+    <string name="default_interval">1000</string>
+    <string name="default_distance">2</string>
+    <string name="setInterval">Set Interval (ms)</string>
+    <string name="setDistance">Set Min Distance (m)</string>
 </resources>

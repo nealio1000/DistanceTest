@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class DistanceTest extends AppCompatActivity {
@@ -24,14 +25,19 @@ public class DistanceTest extends AppCompatActivity {
     private Button gpsButton;
     private TextView resultView;
     private TextView readyText;
+    private EditText updateInterval;
+    private Button setButton;
+    private EditText minDistance;
+    private Button setMinDistance;
     private LocationManager locationManager;
     private Location startLocation;
     private Location lastKnown;
     private LocationListener locationListener;
     private String locationProvider;
     private boolean firstLocationFlag = false;
-    private final long minTimeMs = 1000;
-    private final long minDistanceMeters = 3;
+    private long minTimeMs;
+    private long minDistanceMeters = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,13 @@ public class DistanceTest extends AppCompatActivity {
         readyText = (TextView) findViewById(R.id.ready_text);
         networkButton = (Button) findViewById(R.id.network_button);
         gpsButton = (Button) findViewById(R.id.gps_button);
+        updateInterval = (EditText) findViewById(R.id.update_interval);
+        setButton = (Button) findViewById(R.id.set_button);
+        minDistance = (EditText) findViewById(R.id.min_distance);
+        setMinDistance = (Button) findViewById(R.id.set_distance_button);
+
+        minDistanceMeters = Long.parseLong(minDistance.getText().toString());
+        minTimeMs = Long.parseLong(updateInterval.getText().toString());
 
         // default button scheme on startup
         startButton.setEnabled(false);
@@ -85,6 +98,19 @@ public class DistanceTest extends AppCompatActivity {
             }
         };
 
+        setMinDistance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                minDistanceMeters = Long.parseLong(minDistance.getText().toString());
+            }
+        });
+
+        setButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                minTimeMs = Long.parseLong(updateInterval.getText().toString());
+            }
+        });
 
         // Create Callbacks
         startButton.setOnClickListener(new View.OnClickListener() {
@@ -97,6 +123,7 @@ public class DistanceTest extends AppCompatActivity {
                 stopButton.setEnabled(true);
                 networkButton.setEnabled(false);
                 gpsButton.setEnabled(false);
+                setButton.setEnabled(false);
 
                 // set flag to tell onLocationChanged() to
                 // save its last location as the startLocation
@@ -131,6 +158,7 @@ public class DistanceTest extends AppCompatActivity {
                 stopButton.setEnabled(false);
                 networkButton.setEnabled(true);
                 gpsButton.setEnabled(true);
+                setButton.setEnabled(true);
                 readyText.setText(R.string.notReady);
                 readyText.setTextColor(Color.rgb(255, 0, 0));
             }
