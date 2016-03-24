@@ -31,7 +31,7 @@ public class DistanceTest extends AppCompatActivity {
     private Button setMinDistance;
     private LocationManager locationManager;
     private Location startLocation;
-    private Location lastKnown;
+    private Location lastKnown = null;
     private LocationListener locationListener;
     private String locationProvider;
     private boolean firstLocationFlag = false;
@@ -124,6 +124,9 @@ public class DistanceTest extends AppCompatActivity {
                 networkButton.setEnabled(false);
                 gpsButton.setEnabled(false);
                 setButton.setEnabled(false);
+                setMinDistance.setEnabled(false);
+                minDistance.setEnabled(false);
+                updateInterval.setEnabled(false);
 
                 // set flag to tell onLocationChanged() to
                 // save its last location as the startLocation
@@ -137,30 +140,36 @@ public class DistanceTest extends AppCompatActivity {
              */
             public void onClick(View v) {
                 // Stop Recording and Display Result
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
+
+                if(lastKnown != null) {
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+
+                    // Stop periodic location updates
+                    locationManager.removeUpdates(locationListener);
+
+                    // Calculate distance between startLocation and lastKnown and store in results[]
+                    float[] results = new float[3];
+                    Location.distanceBetween(startLocation.getLatitude(), startLocation.getLongitude(),
+                            lastKnown.getLatitude(), lastKnown.getLongitude(), results);
+
+                    // display results
+                    resultView.setText((String.valueOf(results[0])));
+
+                    // reset activity
+                    startButton.setEnabled(false);
+                    stopButton.setEnabled(false);
+                    networkButton.setEnabled(true);
+                    gpsButton.setEnabled(true);
+                    setButton.setEnabled(true);
+                    updateInterval.setEnabled(true);
+                    minDistance.setEnabled(true);
+                    setMinDistance.setEnabled(true);
+                    readyText.setText(R.string.notReady);
+                    readyText.setTextColor(Color.rgb(255, 0, 0));
                 }
-
-                // Stop periodic location updates
-                locationManager.removeUpdates(locationListener);
-
-                // Calculate distance between startLocation and lastKnown and store in results[]
-                float[] results = new float[3];
-                Location.distanceBetween(startLocation.getLatitude(), startLocation.getLongitude(),
-                        lastKnown.getLatitude(), lastKnown.getLongitude(), results);
-
-                // display results
-                resultView.setText((String.valueOf(results[0])));
-
-                // reset activity
-                startButton.setEnabled(false);
-                stopButton.setEnabled(false);
-                networkButton.setEnabled(true);
-                gpsButton.setEnabled(true);
-                setButton.setEnabled(true);
-                readyText.setText(R.string.notReady);
-                readyText.setTextColor(Color.rgb(255, 0, 0));
             }
         });
         networkButton.setOnClickListener(new View.OnClickListener() {
