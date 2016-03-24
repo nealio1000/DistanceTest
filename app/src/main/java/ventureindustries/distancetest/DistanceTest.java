@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-
 public class DistanceTest extends AppCompatActivity {
 
     private TextView latitudeView;
@@ -26,15 +25,13 @@ public class DistanceTest extends AppCompatActivity {
     private Button gpsButton;
     private TextView resultView;
     private TextView readyText;
-    private double longitude;
-    private double latitude;
     private LocationManager locationManager;
     private Location startLocation;
-    private Location stopLocation;
     private Location lastKnown;
     private LocationListener locationListener;
     private String locationProvider;
     private boolean firstLocationFlag = false;
+    private final long updateInterval = 5000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +61,11 @@ public class DistanceTest extends AppCompatActivity {
             @Override
             public void onLocationChanged(Location location) {
 
-                if(isBetterLocation(location, lastKnown)) {
+                if (isBetterLocation(location, lastKnown)) {
                     latitudeView.setText(String.valueOf(location.getLatitude()));
                     longitudeView.setText(String.valueOf(location.getLongitude()));
 
-                    if(firstLocationFlag) {
+                    if (firstLocationFlag) {
                         startLocation = location;
                         firstLocationFlag = false;
                     }
@@ -77,13 +74,16 @@ public class DistanceTest extends AppCompatActivity {
             }
 
             @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
 
             @Override
-            public void onProviderEnabled(String provider) {}
+            public void onProviderEnabled(String provider) {
+            }
 
             @Override
-            public void onProviderDisabled(String provider) {}
+            public void onProviderDisabled(String provider) {
+            }
         };
 
 
@@ -148,17 +148,17 @@ public class DistanceTest extends AppCompatActivity {
                 resultView.setText(R.string.zero);
 
                 // Set up location management for NETWORK_PROVIDER
-                locationProvider = locationManager.NETWORK_PROVIDER;
+                locationProvider = LocationManager.NETWORK_PROVIDER;
                 lastKnown = locationManager.getLastKnownLocation(locationProvider);
                 latitudeView.setText(String.valueOf(lastKnown.getLatitude()));
                 longitudeView.setText(String.valueOf(lastKnown.getLongitude()));
 
                 // Start Retrieving Location Updates from NETWORK_PROVIDER
                 if (ActivityCompat.checkSelfPermission(
-                        getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
+                        getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, 0, locationListener);
 
                 // Inform user that they can begin recording
                 readyText.setText(R.string.ready);
@@ -174,9 +174,6 @@ public class DistanceTest extends AppCompatActivity {
                 gpsButton.setEnabled(true);
                 startButton.setEnabled(true);
                 resultView.setText(R.string.zero);
-
-                //TODO Handle the blended case if possible
-
             }
         });
         gpsButton.setOnClickListener(new View.OnClickListener() {
@@ -196,10 +193,10 @@ public class DistanceTest extends AppCompatActivity {
 
                 // Start Retrieving Location Updates
                 if (ActivityCompat.checkSelfPermission(
-                        getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ){
+                        getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, updateInterval, 0, locationListener);
 
                 // Inform user that they can begin recording
                 readyText.setText(R.string.ready);
